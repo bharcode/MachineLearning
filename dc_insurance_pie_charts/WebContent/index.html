@@ -1,0 +1,626 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/dc.css"/>
+
+    <link href='./highlighter/shCore.css' rel='stylesheet' type='text/css'/>
+    <link href='./highlighter/shThemeDefault.css' rel='stylesheet' type='text/css'/>
+</head>
+<body>
+
+<script type="text/javascript" src="./js/d3.js"></script>
+<script type="text/javascript" src="./js/crossfilter.js"></script>
+<script type="text/javascript" src="./js/dc.js"></script>
+
+<script src='./highlighter/shCore.js' type='text/javascript'></script>
+<script src="./highlighter/shAutoloader.js" type="text/javascript"></script>
+<script src='./highlighter/shBrushJScript.js' type='text/javascript'></script>
+<script src='./highlighter/shBrushXml.js' type='text/javascript'></script>
+
+
+<div class="container">
+
+<h3>Personality Details &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Ethinicity Details</h3>
+<div class="row">
+    <div id="cat-chart">
+        <strong>Gender</strong>
+        <a class="reset" href="javascript:catChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>
+
+<div id="age-chart">
+        <strong>Age</strong>
+        <a class="reset" href="javascript:ageChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>
+    
+<div id="state-chart">
+        <strong>Alcohol/Drugs</strong>
+        <a class="reset" href="javascript:stateChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>
+<div id="race-chart">
+        <strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Race</strong>
+        <a class="reset" href="javascript:raceChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>
+
+<div id="hisp-chart">
+        <strong>Hispanic</strong>
+        <a class="reset" href="javascript:hispChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>
+
+</div>
+
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time Lines &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Details of Injury
+</h3>
+
+    <div id="quarter-chart">
+        <strong>Month of Year</strong>
+        <a class="reset" href="javascript:quarterChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>
+
+    <div id="day-of-week-chart">
+        <strong>Day of Week</strong>
+        <a class="reset" href="javascript:dayOfWeekChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>
+
+    <div id="hour-chart">
+        <strong>Hour of Day</strong>
+        <a class="reset" href="javascript:hourChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>
+
+    
+ <div class="row">   
+    <div id="site-chart">
+        <strong>Injury Type</strong>
+        <a class="reset" href="javascript:siteChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>
+
+     
+    <div id="desc-chart">
+        <strong>Desc. Of Accident</strong>
+        <a class="reset" href="javascript:descChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+
+        <div class="clearfix"></div>
+    </div>
+    
+    
+  </div>
+  
+  </div>
+
+    
+
+
+
+    
+<script type="text/javascript">
+var gainOrLossChart = dc.pieChart("#gain-loss-chart");
+var fluctuationChart = dc.barChart("#fluctuation-chart");
+var quarterChart = dc.pieChart("#quarter-chart");
+var dayOfWeekChart = dc.pieChart("#day-of-week-chart");
+var ageChart = dc.barChart("#age-chart");
+var catChart = dc.pieChart("#cat-chart");
+var siteChart = dc.pieChart("#site-chart");
+var stateChart = dc.pieChart("#state-chart");
+var descChart = dc.pieChart("#desc-chart");
+var raceChart = dc.pieChart("#race-chart");
+var hispChart = dc.pieChart("#hisp-chart");
+var hourChart = dc.barChart("#hour-chart");
+
+
+var moveChart = dc.compositeChart("#monthly-move-chart");
+var volumeChart = dc.barChart("#monthly-volume-chart");
+var yearlyBubbleChart = dc.bubbleChart("#yearly-bubble-chart");
+
+// set dc.js version in title
+d3.selectAll("#version").text(dc.version);
+
+// load data from a csv file
+d3.csv("./data/ndx.csv", function (data) {
+            // since its a csv file we need to format the data a bit
+            var dateFormat = d3.time.format("%m/%d/%Y");
+            var numberFormat = d3.format(".2f");
+
+            data.forEach(function (e) {
+                e.dd = dateFormat.parse(e.date);
+                e.month = d3.time.month(e.dd); // pre-calculate month for better performance
+            });
+
+            // feed it through crossfilter
+            var ndx = crossfilter(data);
+            var all = ndx.groupAll();
+
+            var yearlyDimension = ndx.dimension(function (d) {
+                return d.oi;
+            });
+            var yearlyPerformanceGroup = yearlyDimension.group().reduce(
+                    //add
+                    function (p, v) {
+                        ++p.count;
+                        p.absGain += +v.close - +v.open;
+                        p.fluctuation += Math.abs(+v.close - +v.open);
+                        p.sumIndex += (+v.open + +v.close) / 2;
+                        p.avgIndex = p.sumIndex / p.count;
+                        p.percentageGain = (p.absGain / p.avgIndex) * 100;
+                        p.fluctuationPercentage = (p.fluctuation / p.avgIndex) * 100;
+                        return p;
+                    },
+                    //remove
+                    function (p, v) {
+                        --p.count;
+                        p.absGain -= +v.close - +v.open;
+                        p.fluctuation -= Math.abs(+v.close - +v.open);
+                        p.sumIndex -= (+v.open + +v.close) / 2;
+                        p.avgIndex = p.sumIndex / p.count;
+                        p.percentageGain = (p.absGain / p.avgIndex) * 100;
+                        p.fluctuationPercentage = (p.fluctuation / p.avgIndex) * 100;
+                        return p;
+                    },
+                    //init
+                    function () {
+                        return {count: 0, absGain: 0, fluctuation: 0, fluctuationPercentage: 0, sumIndex: 0, avgIndex: 0, percentageGain: 0};
+                    }
+            );
+
+            var dateDimension = ndx.dimension(function (d) {
+                return d.dd;
+            });
+
+            // monthly index avg fluctuation in percentage
+            var moveMonths = ndx.dimension(function (d) {
+                return d.month;
+            });
+            var monthlyMoveGroup = moveMonths.group().reduceSum(function (d) {
+                return Math.abs(d.volume);
+            });
+            var volumeByMonthGroup = moveMonths.group().reduceSum(function (d) {
+                return d.volume;
+            });
+            var indexAvgByMonthGroup = moveMonths.group().reduce(
+                    function (p, v) {
+                        ++p.days;
+                        p.total += (+v.open + +v.close) / 2;
+                        p.avg = Math.round(p.total / p.days);
+                        return p;
+                    },
+                    function (p, v) {
+                        --p.days;
+                        p.total -= (+v.open + +v.close) / 2;
+                        p.avg = p.days == 0 ? 0 : Math.round(p.total / p.days);
+                        return p;
+                    },
+                    function () {
+                        return {days: 0, total: 0, avg: 0};
+                    }
+            );
+
+            var gainOrLoss = ndx.dimension(function (d) {
+                return +d.open > +d.close ? "Loss" : "Gain";
+            });
+            var gainOrLossGroup = gainOrLoss.group();
+
+            var fluctuation = ndx.dimension(function (d) {
+                return Math.round((d.close - d.open) / d.open * 100);
+            });
+            var fluctuationGroup = fluctuation.group();
+
+            var quarter = ndx.dimension(function (d) {
+                var month = d.dd.getMonth();
+                switch (month) {
+                case 1:
+                    return "Jan";
+                case 2:
+                    return "Feb";
+                case 3:
+                    return "Mar";
+                case 4:
+                    return "Apr";
+                case 5:
+                    return "May";
+                case 6:
+                    return "Jun";
+                case 7:
+                    return "Jul";
+                case 8:
+                    return "Aug";
+                case 9:
+                    return "Sep";
+                case 10:
+                    return "Oct";
+                case 11:
+                    return "Nov";
+                case 12:
+                    return "Dec";
+            }
+                
+            });
+            var quarterGroup = quarter.group().reduceSum(function (d) {
+                return d.volume;
+            });
+
+            var dayOfWeek = ndx.dimension(function (d) {
+                var day = d.dd.getDay();
+                switch (day) {
+                    case 0:
+                        return "Sun";
+                    case 1:
+                        return "Mon";
+                    case 2:
+                        return "Tue";
+                    case 3:
+                        return "Wed";
+                    case 4:
+                        return "Thu";
+                    case 5:
+                        return "Fri";
+                    case 6:
+                        return "Sat";
+                }
+            });
+            var dayOfWeekGroup = dayOfWeek.group();
+            
+            var hour= ndx.dimension(function (d) {
+                var hr = d.hour;
+                return hr;
+            });
+            var hourGroup = hour.group();
+            
+            var ageBucket= ndx.dimension(function (d) {
+                var age = d.low;
+                return age;
+            });
+            var ageGroup = ageBucket.group();
+            
+            var state= ndx.dimension(function (d) {
+                var st = d.state;
+                return st;
+            });
+            var stateGroup = state.group();
+            
+            var descRand = ["Died at Scene","Died En Route","Unknown"];
+            var desc= ndx.dimension(function (d) {
+                var des = d.doa;
+                if(des == "NA")
+                	return descRand[Math.floor(Math.random()*descRand.length)];
+                return des;
+            });
+            var descGroup = desc.group();
+            
+            var raceRand = ["White","Black","Guamanian","All Other Races ","Asian","American Indian","Unknown","Other Asian","Chinese","Korean","Japanese","Filipino","Multiple Races","Asian Indian","Other Indian","Vietmese","Samoan","Hawaiian"];
+            var race= ndx.dimension(function (d) {
+                var rac = d.race;
+                if(rac == "NA")
+                	return raceRand[Math.floor(Math.random()*raceRand.length)];
+                else
+	                return rac;
+            });
+            var raceGroup = race.group();
+            
+            var randHisp = ["Puerto Rican","South American","Mexican","Hispanic","Spanish","Cuban"];
+            var hisp= ndx.dimension(function (d) {
+                var his = d.hispanic;
+                if(his == "NA")
+                	return randHisp[Math.floor(Math.random()*randHisp.length)];
+                return his;
+            });
+            var hispGroup = hisp.group();
+            
+            var randSelect = ["Entd","Beauty","Event Planning & Services","Shopping","Health and Medical","Active Life","Hotels & Travel","Restaurants","Nightlife","Food","Education","Professional Services","Automotive","Local Services","Pets","Home Services","Local Flavor","Financial Services","Public Services & Government"];
+            
+            var cat = ndx.dimension(function (d) {
+                var ct = d.high;
+                var randomnumber=Math.floor(Math.random()*randSelect.length);
+                if(ct.length > 0)	
+	                return ct;
+                else
+                	return randSelect[randomnumber];
+                		
+            });
+            var catGroup = cat.group();
+            
+            var site = ndx.dimension(function (d) {
+                var sit = d.oi;
+                	return sit;
+                		
+            });
+            var siteGroup = site.group();
+
+            yearlyBubbleChart.width(990)
+                    .height(250)
+                    .margins({top: 10, right: 50, bottom: 30, left: 40})
+                    .dimension(yearlyDimension)
+                    .group(yearlyPerformanceGroup)
+                    .transitionDuration(1500)
+                    .colors(["#a60000", "#ff0000", "#ff4040", "#ff7373", "#67e667", "#39e639", "#00cc00"])
+                    .colorDomain([-12000, 12000])
+                    .colorAccessor(function (d) {
+                        return d.value.absGain;
+                    })
+                    .keyAccessor(function (p) {
+                        return p.value.absGain;
+                    })
+                    .valueAccessor(function (p) {
+                        return p.value.percentageGain;
+                    })
+                    .radiusValueAccessor(function (p) {
+                        return 100;
+                    })
+                    .maxBubbleRelativeSize(0.3)
+                    .x(d3.scale.linear().domain([0, 250000]))
+                    .y(d3.scale.linear().domain([0, 100000]))
+                    .r(d3.scale.linear().domain([0, 40]))
+                    .elasticY(true)
+                    .yAxisPadding(100)
+                    .elasticX(true)
+                    .xAxisPadding(500)
+                    .renderHorizontalGridLines(true)
+                    .renderVerticalGridLines(true)
+                    .renderLabel(true)
+                    .renderTitle(true)
+                    .label(function (p) {
+                        return p.key;
+                    })
+                    .title(function (p) {
+                        return p.key.getFullYear()
+                                + "\n"
+                                + "Index Gain: " + numberFormat(p.value.absGain) + "\n"
+                                + "Index Gain in Percentage: " + numberFormat(p.value.percentageGain) + "%\n"
+                                + "Fluctuation / Index Ratio: " + numberFormat(p.value.fluctuationPercentage) + "%";
+                    })
+                    .yAxis().tickFormat(function (v) {
+                        return v + "%";
+                    });
+
+            gainOrLossChart.width(180)
+                    .height(180)
+                    .radius(80)
+                    .dimension(gainOrLoss)
+                    .group(gainOrLossGroup)
+                    .label(function (d) {
+                        return d.data.key + "(" + Math.floor(d.data.value / all.value() * 100) + "%)";
+                    });
+
+            quarterChart.width(180)
+                    .height(180)
+                    .radius(80)
+                    .innerRadius(30)
+                    .dimension(quarter)
+                    .colors(d3.scale.category20())
+                    .group(quarterGroup);
+            
+            stateChart.width(180)
+            .height(180)
+            .radius(80)
+            .innerRadius(30)
+            .dimension(state)
+            .colors(d3.scale.category20())
+            .group(stateGroup);
+
+            
+            raceChart.width(260)
+            .height(260)
+            .radius(120)
+            .innerRadius(30)
+            .dimension(race)
+            .colors(d3.scale.category20())
+            .group(raceGroup);
+
+            
+            dayOfWeekChart.width(180)
+                    .height(180)
+                    .radius(80)
+                    .colors(d3.scale.category10())
+                    .innerRadius(30)
+                    .dimension(dayOfWeek)
+                    .group(dayOfWeekGroup);
+            
+            hourChart.width(360)
+            .height(180)
+            .margins({top: 10, right: 50, bottom: 30, left: 40})
+            .dimension(hour)
+            .group(hourGroup)
+            .elasticY(true)
+            .centerBar(true)
+            .gap(1)
+            .round(dc.round.floor)
+            .x(d3.scale.linear().domain([0, 24]))
+            .renderHorizontalGridLines(true)
+            .xAxis()
+            .tickFormat(function (v) {
+                return v;
+            });
+            
+            
+            ageChart.width(420)
+            .height(180)
+            .margins({top: 10, right: 50, bottom: 30, left: 40})
+            .dimension(ageBucket)
+            .group(ageGroup)
+            .elasticY(true)
+            .centerBar(true)
+            .gap(1)
+            .round(dc.round.floor)
+            .x(d3.scale.linear().domain([0, 80]))
+            .renderHorizontalGridLines(true)
+            .xAxis()
+            .tickFormat(function (v) {
+                return v;
+            });
+            
+            hispChart.width(260)
+            .height(260)
+            .radius(120)
+            .colors(d3.scale.category20())
+            .innerRadius(30)
+            .dimension(hisp)
+            .group(hispGroup);
+
+            
+            catChart.width(180)
+            .height(180)
+            .radius(80)
+            .colors(["#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd"])
+            .innerRadius(30)
+            .dimension(cat)
+            .group(catGroup);
+
+            siteChart.width(360)
+            .height(360)
+            .radius(160)
+            .colors(d3.scale.category10())
+            .innerRadius(60)
+            .dimension(site)
+            .group(siteGroup);
+            
+            descChart.width(260)
+            .height(260)
+            .radius(120)
+            .colors(d3.scale.category10())
+            .innerRadius(30)
+            .dimension(desc)
+            .group(descGroup);
+            
+            fluctuationChart.width(420)
+                    .height(180)
+                    .margins({top: 10, right: 50, bottom: 30, left: 40})
+                    .dimension(fluctuation)
+                    .group(fluctuationGroup)
+                    .elasticY(true)
+                    .centerBar(true)
+                    .gap(1)
+                    .round(dc.round.floor)
+                    .x(d3.scale.linear().domain([-25, 25]))
+                    .renderHorizontalGridLines(true)
+                    .xAxis()
+                    .tickFormat(function (v) {
+                        return v + "%";
+                    });
+
+            moveChart.width(990)
+                    .height(200)
+                    .transitionDuration(1000)
+                    .margins({top: 10, right: 50, bottom: 25, left: 40})
+                    .dimension(moveMonths)
+                    .group(indexAvgByMonthGroup)
+                    .valueAccessor(function (d) {
+                        return d.value.avg;
+                    })
+                    .x(d3.time.scale().domain([new Date(2008, 0, 1), new Date(2014, 3, 31)]))
+                    .round(d3.time.month.round)
+                    .xUnits(d3.time.months)
+                    .elasticY(true)
+                    .renderHorizontalGridLines(true)
+                    .brushOn(false)
+                    .compose([
+                        dc.lineChart(moveChart).group(indexAvgByMonthGroup)
+                                .valueAccessor(function (d) {
+                                    return d.value.avg;
+                                })
+                                .renderArea(true)
+                                .stack(monthlyMoveGroup, function (d) {
+                                    return d.value;
+                                })
+                                .title(function (d) {
+                                    var value = d.value.avg ? d.value.avg : d.value;
+                                    if (isNaN(value)) value = 0;
+                                    return dateFormat(d.key) + "\n" + numberFormat(value);
+                                })
+                    ])
+                    .xAxis();
+
+            volumeChart.width(990)
+                    .height(80)
+                    .margins({top: 0, right: 50, bottom: 20, left: 40})
+                    .dimension(moveMonths)
+                    .group(volumeByMonthGroup)
+                    .centerBar(true)
+                    .gap(0)
+                    .x(d3.time.scale().domain([new Date(2008, 0, 1), new Date(2014, 3, 31)]))
+                    .round(d3.time.month.round)
+                    .xUnits(d3.time.months)
+                    .renderlet(function (chart) {
+                        chart.select("g.y").style("display", "none");
+                        moveChart.filter(chart.filter());
+                    })
+                    .on("filtered", function (chart) {
+                        dc.events.trigger(function () {
+                            moveChart.focus(chart.filter());
+                        });
+                    });
+
+
+            dc.dataCount(".dc-data-count")
+                    .dimension(ndx)
+                    .group(all);
+
+            dc.dataTable(".dc-data-table")
+                    .dimension(dateDimension)
+                    .group(function (d) {
+                        var format = d3.format("02d");
+                        return d.dd.getFullYear() + "/" + format((d.dd.getMonth() + 1));
+                    })
+                    .size(10)
+                    .columns([
+                        function (d) {
+                            return d.date;
+                        },
+                        function (d) {
+                            return d.open;
+                        },
+                        function (d) {
+                            return d.close;
+                        },
+                        function (d) {
+                            return numberFormat(d.close - d.open);
+                        },
+                        function (d) {
+                            return d.volume;
+                        }
+                    ])
+                    .sortBy(function (d) {
+                        return d.dd;
+                    })
+                    .order(d3.ascending)
+                    .renderlet(function (table) {
+                        table.selectAll(".dc-table-group").classed("info", true);
+                    });
+
+            dc.renderAll();
+        }
+);
+</script>
+
+
+
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="js/bootstrap.min.js"></script>
+
+<script type="text/javascript">
+    SyntaxHighlighter.all();
+</script>
+
+</body>
+</html>
